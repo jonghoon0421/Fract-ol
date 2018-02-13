@@ -6,7 +6,7 @@
 /*   By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/26 18:50:40 by jonkim            #+#    #+#             */
-/*   Updated: 2018/02/02 23:36:18 by jonkim           ###   ########.fr       */
+/*   Updated: 2018/02/08 23:55:47 by jonkim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,21 +16,26 @@ void	ft_init_val(t_env *env)
 {
 	env->win_wth = 400;
 	env->win_hgt = 400;
-	env->move_x = 0;
-	env->move_y = 0;
+	env->x_offset = 0;
+	env->y_offset = 0;
 	env->zoom = 1;
 	env->iter_max = 20;
-	env->mouse_x = env->win_wth / 2;
-	env->mouse_y = env->win_hgt / 2;
 	env->psych = 0;
-	env->color_info = ft_memalloc(sizeof(t_color) * 2);
+	env->r = 0;
+	env->c = 0;
+	env->julia_mode = JULIA_MOVE;
+	if (env->color_init == 0)
+	{
+		env->color_info = (t_color*)ft_memalloc(sizeof(t_color) * 2);
+		env->color_init = 1;
+	}
 	env->color_info->center = 127.5;
 	env->color_info->width = 127.5;
 	env->color_info->step = 50;
-	env->color_info->freq_r = 0.3;
-	env->color_info->freq_g = 0.3;
-	env->color_info->freq_b = 0.3;
-	env->color_setting = CONTINUOUS;
+	env->color_info->freq_r = 0.4;
+	env->color_info->freq_g = 0.4;
+	env->color_info->freq_b = 0.4;
+	env->color_setting = DISCRETE;
 	ft_color_band(env);
 }
 
@@ -39,7 +44,7 @@ void	ft_init_mlx(t_env *env)
 	env->mlx = mlx_init();
 	env->win = mlx_new_window(env->mlx, env->win_wth, env->win_hgt, "TEST");
 	env->img = mlx_new_image(env->mlx, env->win_wth, env->win_hgt);
-	env->data =(int*)mlx_get_data_addr(env->img, &env->bits_per_pixel,
+	env->data = (int*)mlx_get_data_addr(env->img, &env->bits_per_pixel,
 		&env->size_line, &env->endian);
 }
 

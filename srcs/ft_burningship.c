@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mandelbrot.c                                    :+:      :+:    :+:   */
+/*   ft_burningship.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/25 18:21:31 by jonkim            #+#    #+#             */
-/*   Updated: 2018/02/12 22:39:20 by jonkim           ###   ########.fr       */
+/*   Created: 2018/02/05 14:42:36 by jonkim            #+#    #+#             */
+/*   Updated: 2018/02/12 22:39:48 by jonkim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-double	ft_mandel_mu(t_env *env, double x, double y, double iter)
+double	ft_burning_mu(t_env *env, double x, double y, double iter)
 {
 	double	mu;
 	double	mod;
@@ -27,7 +27,7 @@ double	ft_mandel_mu(t_env *env, double x, double y, double iter)
 	return (mu);
 }
 
-double	ft_mandel_iter(t_thread *th, t_env *env, int row, int col)
+double	ft_burning_iter(t_thread *th, t_env *env, int row, int col)
 {
 	double	c_re;
 	double	c_im;
@@ -45,14 +45,14 @@ double	ft_mandel_iter(t_thread *th, t_env *env, int row, int col)
 	{
 		th->ox = th->x;
 		th->oy = th->y;
-		th->x = P2(th->ox) - P2(th->oy) + c_re;
-		th->y = 2 * th->ox * th->oy + c_im;
+		th->x = fabs(P2(th->ox) - P2(th->oy) + c_re);
+		th->y = fabs(2 * th->ox * th->oy + c_im);
 	}
 	return (iter = (env->color_setting == CONTINUOUS ?
-		ft_mandel_mu(env, th->x, th->y, iter) : iter));
+		ft_burning_mu(env, th->x, th->y, iter) : iter));
 }
 
-void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
+void	ft_burning_draw(t_thread *th, t_env *env, int row, int row_end)
 {
 	int		col;
 	double	iter;
@@ -62,7 +62,7 @@ void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
 		col = -1;
 		while (++col < env->win_wth)
 		{
-			iter = ft_mandel_iter(th, env, row, col);
+			iter = ft_burning_iter(th, env, row, col);
 			if (env->color_setting == CONTINUOUS)
 				env->data[(row * env->size_line / CONVERSION) + col] =
 				(iter == env->iter_max ? BLACK : ft_color_cont(env, iter));

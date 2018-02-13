@@ -6,13 +6,21 @@
 #    By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/09 17:16:00 by jonkim            #+#    #+#              #
-#    Updated: 2018/02/01 23:00:55 by jonkim           ###   ########.fr        #
+#    Updated: 2018/02/12 23:02:38 by jonkim           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRC = main.c			\
 	  ft_error.c		\
 	  ft_mandelbrot.c	\
+	  ft_burningship.c	\
+	  ft_julia.c		\
+	  ft_tricorn.c		\
+	  ft_newton3.c		\
+	  ft_newton4.c		\
+	  ft_no_complex.c	\
+	  ft_complex.c		\
+	  ft_sine.c			\
 	  ft_window.c		\
 	  ft_init.c			\
 	  ft_color.c

@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mandelbrot.c                                    :+:      :+:    :+:   */
+/*   ft_newton3.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/25 18:21:31 by jonkim            #+#    #+#             */
-/*   Updated: 2018/02/12 22:39:20 by jonkim           ###   ########.fr       */
+/*   Created: 2018/02/05 17:04:25 by jonkim            #+#    #+#             */
+/*   Updated: 2018/02/12 22:43:20 by jonkim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-double	ft_mandel_mu(t_env *env, double x, double y, double iter)
+double	ft_newton3_mu(t_env *env, t_thread *th, double iter)
 {
 	double	mu;
 	double	mod;
@@ -21,38 +21,42 @@ double	ft_mandel_mu(t_env *env, double x, double y, double iter)
 		mu = iter;
 	else
 	{
-		mod = x * x + y * y;
-		mu = iter + env->psych + log(log(4) / log(mod)) / log(2);
+		mod = fabs(P2(th->x) + P2(th->y) - 0.5 /
+			(P2(th->ox - th->x) + P2(th->oy - th->y)));
+		mod = log(log(mod)) / log(2);
+		mu = iter + env->psych - mod;
 	}
 	return (mu);
 }
 
-double	ft_mandel_iter(t_thread *th, t_env *env, int row, int col)
+double	ft_newton3_iter(t_thread *th, t_env *env, int row, int col)
 {
-	double	c_re;
-	double	c_im;
 	double	iter;
+	double	tmp;
+	double	sum;
 
 	env->zoom = (env->zoom < 0 ? 0 : env->zoom);
-	c_re = (2 * col - env->win_wth) / (env->zoom * env->win_wth / 2) +
+	th->x = (2 * col - env->win_wth) / (env->zoom * env->win_wth / 2) +
 		env->x_offset;
-	c_im = (2 * row - env->win_hgt) / (env->zoom * env->win_hgt / 2) +
+	th->y = (2 * row - env->win_hgt) / (env->zoom * env->win_hgt / 2) +
 		env->y_offset;
-	th->x = 0;
-	th->y = 0;
 	iter = 0;
-	while (++iter < env->iter_max && (th->x * th->x + th->y * th->y) < 4)
+	tmp = 1.0;
+	sum = 0.0;
+	while (++iter < env->iter_max && tmp > 0.000001)
 	{
 		th->ox = th->x;
 		th->oy = th->y;
-		th->x = P2(th->ox) - P2(th->oy) + c_re;
-		th->y = 2 * th->ox * th->oy + c_im;
+		tmp = P2(P2(th->ox) + P2(th->oy));
+		th->x = (2 * th->ox * tmp + P2(th->ox) - P2(th->oy)) / (3.0 * tmp);
+		th->y = (2 * th->oy * (tmp - th->ox)) / (3.0 * tmp);
+		tmp = P2(th->x - th->ox) + P2(th->y - th->oy);
 	}
 	return (iter = (env->color_setting == CONTINUOUS ?
-		ft_mandel_mu(env, th->x, th->y, iter) : iter));
+		ft_newton3_mu(env, th, iter) : iter));
 }
 
-void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
+void	ft_newton3_draw(t_thread *th, t_env *env, int row, int row_end)
 {
 	int		col;
 	double	iter;
@@ -62,7 +66,7 @@ void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
 		col = -1;
 		while (++col < env->win_wth)
 		{
-			iter = ft_mandel_iter(th, env, row, col);
+			iter = ft_newton3_iter(th, env, row, col);
 			if (env->color_setting == CONTINUOUS)
 				env->data[(row * env->size_line / CONVERSION) + col] =
 				(iter == env->iter_max ? BLACK : ft_color_cont(env, iter));

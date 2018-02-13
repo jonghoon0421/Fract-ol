@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mandelbrot.c                                    :+:      :+:    :+:   */
+/*   ft_sine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/25 18:21:31 by jonkim            #+#    #+#             */
-/*   Updated: 2018/02/12 22:39:20 by jonkim           ###   ########.fr       */
+/*   Created: 2018/02/12 17:13:45 by jonkim            #+#    #+#             */
+/*   Updated: 2018/02/12 23:28:49 by jonkim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-double	ft_mandel_mu(t_env *env, double x, double y, double iter)
+double	ft_sine_mu(t_env *env, double complex oz, double complex z,
+		double iter)
 {
 	double	mu;
 	double	mod;
@@ -21,38 +22,40 @@ double	ft_mandel_mu(t_env *env, double x, double y, double iter)
 		mu = iter;
 	else
 	{
-		mod = x * x + y * y;
-		mu = iter + env->psych + log(log(4) / log(mod)) / log(2);
+		mod = fabs(-cabs(z) - 0.5 / cabs(oz - z));
+		mod = log(log(mod)) / log(M_PI);
+		mu = iter + env->psych - mod;
 	}
 	return (mu);
 }
 
-double	ft_mandel_iter(t_thread *th, t_env *env, int row, int col)
+double	ft_sine_iter(t_thread *th, t_env *env, int row, int col)
 {
-	double	c_re;
-	double	c_im;
-	double	iter;
-
+	double			iter;
+	double			tol;
+	double complex	old_z;
+	double complex	z;
+	
 	env->zoom = (env->zoom < 0 ? 0 : env->zoom);
-	c_re = (2 * col - env->win_wth) / (env->zoom * env->win_wth / 2) +
-		env->x_offset;
-	c_im = (2 * row - env->win_hgt) / (env->zoom * env->win_hgt / 2) +
+	th->x = (2 * col - env->win_wth) / (env->zoom * env->win_wth / 2) +
+		env->x_offset - M_PI / 2;
+	th->y = (2 * row - env->win_hgt) / (env->zoom * env->win_hgt / 2) +
 		env->y_offset;
-	th->x = 0;
-	th->y = 0;
+	z = th->x + th->y * I;
 	iter = 0;
-	while (++iter < env->iter_max && (th->x * th->x + th->y * th->y) < 4)
+	tol = 0.000001;
+	while (++iter < env->iter_max)
 	{
-		th->ox = th->x;
-		th->oy = th->y;
-		th->x = P2(th->ox) - P2(th->oy) + c_re;
-		th->y = 2 * th->ox * th->oy + c_im;
+		old_z = z;
+		z = old_z - csin(z) / ccos(z);
+		if (cabs(z - old_z) < tol)
+			break;
 	}
 	return (iter = (env->color_setting == CONTINUOUS ?
-		ft_mandel_mu(env, th->x, th->y, iter) : iter));
+		ft_sine_mu(env, old_z, z, iter) : iter));
 }
 
-void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
+void	ft_sine_draw(t_thread *th, t_env *env, int row, int row_end)
 {
 	int		col;
 	double	iter;
@@ -62,7 +65,7 @@ void	ft_mandel_draw(t_thread *th, t_env *env, int row, int row_end)
 		col = -1;
 		while (++col < env->win_wth)
 		{
-			iter = ft_mandel_iter(th, env, row, col);
+			iter = ft_sine_iter(th, env, row, col);
 			if (env->color_setting == CONTINUOUS)
 				env->data[(row * env->size_line / CONVERSION) + col] =
 				(iter == env->iter_max ? BLACK : ft_color_cont(env, iter));
