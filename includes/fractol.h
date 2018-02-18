@@ -6,7 +6,7 @@
 /*   By: jonkim <jonkim@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/25 12:11:02 by jonkim            #+#    #+#             */
-/*   Updated: 2018/02/17 17:05:55 by jonkim           ###   ########.fr       */
+/*   Updated: 2018/02/17 18:04:59 by jonkim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,12 +119,6 @@ typedef struct	s_env
 	int			julia_mode;
 	int			color_init;
 }				t_env;
-
-typedef struct	s_complex
-{
-	double		re;
-	double		im;
-}				t_complex;
 
 typedef struct	s_thread
 {
